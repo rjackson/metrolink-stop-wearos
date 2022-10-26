@@ -60,9 +60,7 @@ fun MetrolinksStopsApp(vm: MetrolinksViewModel) {
             ) {
                 when (vm.status) {
                     MetrolinksApiStatus.DONE -> {
-                        items(vm.metrolinks.size) { index ->
-                            val metrolink = vm.metrolinks[index]
-
+                        items(vm.stops) { stop ->
                             Chip(
                                 modifier = Modifier.fillMaxWidth(),
                                 enabled = true,
@@ -70,7 +68,7 @@ fun MetrolinksStopsApp(vm: MetrolinksViewModel) {
                                     Text(
                                         modifier = Modifier.fillMaxWidth(),
                                         color = MaterialTheme.colors.onPrimary,
-                                        text = metrolink.StationLocation,
+                                        text = stop.stationLocation,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )

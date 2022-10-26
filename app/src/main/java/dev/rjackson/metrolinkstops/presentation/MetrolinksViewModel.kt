@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.rjackson.metrolinkstops.network.Metrolink
-import dev.rjackson.metrolinkstops.network.TfgmApi
+import dev.rjackson.metrolinkstops.network.metrolinkstops.MetrolinkStopsApi
+import dev.rjackson.metrolinkstops.network.metrolinkstops.MetrolinkStopsEntry
 import kotlinx.coroutines.launch
 
 private const val TAG = "MetrolinksViewModel"
@@ -14,9 +14,9 @@ private const val TAG = "MetrolinksViewModel"
 enum class MetrolinksApiStatus { LOADING, ERROR, DONE }
 
 class MetrolinksViewModel : ViewModel() {
-    private val _metrolinks = mutableStateListOf<Metrolink>()
-    val metrolinks: List<Metrolink>
-        get() = _metrolinks
+    private val _stops = mutableStateListOf<MetrolinkStopsEntry>()
+    val stops: List<MetrolinkStopsEntry>
+        get() = _stops
 
     private val _status = mutableStateOf(MetrolinksApiStatus.LOADING)
     val status: MetrolinksApiStatus
@@ -31,14 +31,16 @@ class MetrolinksViewModel : ViewModel() {
             _status.value = MetrolinksApiStatus.LOADING
             _errorMessage.value = null
             try {
-                _metrolinks.clear()
-                _metrolinks.addAll(TfgmApi.retrofitService.getAllMetrolinks())
+                _stops.clear()
+                _stops.addAll(
+                    MetrolinkStopsApi.retrofitService.getStops()
+                        .sortedBy { it.stationLocation })
                 _status.value = MetrolinksApiStatus.DONE
             } catch (e: Exception) {
-                _metrolinks.clear()
+                _stops.clear()
                 _status.value = MetrolinksApiStatus.ERROR
                 _errorMessage.value = e.message
-                Log.w(TAG, "Could not load metrolinks: ${e.message}")
+                Log.w(TAG, "Could not load stops: ${e.message}")
             }
         }
     }

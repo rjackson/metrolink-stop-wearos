@@ -1,4 +1,4 @@
-package dev.rjackson.metrolinkstops.network
+package dev.rjackson.metrolinkstops.network.tfgm
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
