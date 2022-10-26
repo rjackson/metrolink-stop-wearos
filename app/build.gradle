@@ -17,6 +17,8 @@ android {
             useSupportLibrary true
         }
 
+        buildConfigField 'String', "TFGM_API_BASE_URL", TfgmApiBaseUrl
+        buildConfigField 'String', "TFGM_API_SUBSCRIPTION_KEY", TfgmApiSubscriptionKey
     }
 
     buildTypes {
@@ -61,4 +63,10 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+
+    // Internetting
+    implementation "com.squareup.retrofit2:retrofit:2.9.0"
+    implementation "com.squareup.moshi:moshi-kotlin:1.9.3"
+    implementation "com.squareup.retrofit2:converter-moshi:2.9.0"
+
 }

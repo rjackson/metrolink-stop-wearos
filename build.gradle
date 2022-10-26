@@ -1,7 +1,7 @@
 buildscript {
     ext {
-        compose_version = '1.2.0-alpha05'
-        wear_compose_version = '1.0.0-alpha18'
+        compose_version = '1.2.1'
+        wear_compose_version = '1.0.2'
     }
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {

@@ -9,61 +9,92 @@ package dev.rjackson.metrolinkstops.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Text
-import dev.rjackson.metrolinkstops.R
+import androidx.wear.compose.material.*
 import dev.rjackson.metrolinkstops.presentation.theme.MetrolinkStopsTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val vm = MetrolinksViewModel()
+
         super.onCreate(savedInstanceState)
         setContent {
-            WearApp("Android")
+            MetrolinksStopsApp(vm)
         }
     }
 }
 
 @Composable
-fun WearApp(greetingName: String) {
+fun MetrolinksStopsApp(vm: MetrolinksViewModel) {
+    val scalingLazyListState: ScalingLazyListState = rememberScalingLazyListState()
+
+    LaunchedEffect(Unit, block = {
+        vm.getMetrolinks()
+    })
+
     MetrolinkStopsTheme {
         /* If you have enough items in your list, use [ScalingLazyColumn] which is an optimized
          * version of LazyColumn for wear devices with some added features. For more information,
          * see d.android.com/wear/compose.
          */
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colors.background),
-            verticalArrangement = Arrangement.Center
+        Scaffold(
+            // Scaffold places time at top of screen to follow Material Design guidelines.
+            timeText = {
+            },
+            positionIndicator = {
+                PositionIndicator(
+                    scalingLazyListState = scalingLazyListState
+                )
+            }
         ) {
-            Greeting(greetingName = greetingName)
+            ScalingLazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = scalingLazyListState
+            ) {
+                when (vm.status) {
+                    MetrolinksApiStatus.DONE -> {
+                        items(vm.metrolinks.size) { index ->
+                            val metrolink = vm.metrolinks[index]
+
+                            Chip(
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = true,
+                                label = {
+                                    Text(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        color = MaterialTheme.colors.onPrimary,
+                                        text = metrolink.StationLocation,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                onClick = { { /*TODO*/ } }
+                            )
+                        }
+                    }
+                    MetrolinksApiStatus.LOADING -> {
+                        item { Text("Loading") }
+                    }
+                    MetrolinksApiStatus.ERROR -> {
+                        item { Text("Error: ${vm.errorMessage}") }
+                    }
+                }
+            }
         }
     }
-}
-
-@Composable
-fun Greeting(greetingName: String) {
-    Text(
-        modifier = Modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center,
-        color = MaterialTheme.colors.primary,
-        text = stringResource(R.string.hello_world, greetingName)
-    )
 }
 
 @Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
 @Composable
 fun DefaultPreview() {
-    WearApp("Preview Android")
+    val vm = MetrolinksViewModel()
+
+    MetrolinksStopsApp(vm)
 }
