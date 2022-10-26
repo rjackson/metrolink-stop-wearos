@@ -3,15 +3,15 @@ package dev.rjackson.metrolinkstops.presentation.theme
 import androidx.compose.ui.graphics.Color
 import androidx.wear.compose.material.Colors
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
+val Yellow200 = Color(0xfffff59d)
+val Yellow500 = Color(0xffffeb3b)
+val Yellow700 = Color(0xfffbc02d)
 val Teal200 = Color(0xFF03DAC5)
 val Red400 = Color(0xFFCF6679)
 
 internal val wearColorPalette: Colors = Colors(
-    primary = Purple200,
-    primaryVariant = Purple700,
+    primary = Yellow200,
+    primaryVariant = Yellow700,
     secondary = Teal200,
     secondaryVariant = Teal200,
     error = Red400,

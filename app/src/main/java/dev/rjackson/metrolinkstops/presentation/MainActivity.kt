@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,13 +41,14 @@ fun MetrolinksStopsApp(vm: MetrolinksViewModel) {
     })
 
     MetrolinkStopsTheme {
-        /* If you have enough items in your list, use [ScalingLazyColumn] which is an optimized
-         * version of LazyColumn for wear devices with some added features. For more information,
-         * see d.android.com/wear/compose.
-         */
         Scaffold(
-            // Scaffold places time at top of screen to follow Material Design guidelines.
             timeText = {
+                TimeText()
+            },
+            vignette = {
+                if (vm.status == MetrolinksApiStatus.LOADING) {
+                    Vignette(vignettePosition = VignettePosition.TopAndBottom)
+                }
             },
             positionIndicator = {
                 PositionIndicator(
@@ -56,23 +58,29 @@ fun MetrolinksStopsApp(vm: MetrolinksViewModel) {
         ) {
             ScalingLazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                state = scalingLazyListState
+                state = scalingLazyListState,
+                autoCentering = AutoCenteringParams(itemIndex = 1)
             ) {
+                item {
+                    Text(
+                        text = "Metrolink Stops",
+                        color = MaterialTheme.colors.primary
+                    )
+                }
                 when (vm.status) {
                     MetrolinksApiStatus.DONE -> {
                         items(vm.stops) { stop ->
                             Chip(
                                 modifier = Modifier.fillMaxWidth(),
-                                enabled = true,
                                 label = {
                                     Text(
                                         modifier = Modifier.fillMaxWidth(),
-                                        color = MaterialTheme.colors.onPrimary,
                                         text = stop.stationLocation,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
                                 },
+                                colors = ChipDefaults.secondaryChipColors(),
                                 onClick = { { /*TODO*/ } }
                             )
                         }
