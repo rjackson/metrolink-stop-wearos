@@ -35,7 +35,7 @@ interface MetrolinkStopsService {
 
     @GET("stop/{name}")
     suspend fun getStop(
-        @Path("name") name: String
+        @Path(value = "name") name: String
     ): MetrolinkStopDetail
 }
 

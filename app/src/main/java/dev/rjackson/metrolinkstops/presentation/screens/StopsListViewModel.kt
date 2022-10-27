@@ -9,37 +9,31 @@ import dev.rjackson.metrolinkstops.network.metrolinkstops.MetrolinkStopsApi
 import dev.rjackson.metrolinkstops.network.metrolinkstops.MetrolinkStopsEntry
 import kotlinx.coroutines.launch
 
-private const val TAG = "MetrolinksViewModel"
+private const val TAG = "StopsListViewModel"
 
-enum class AppApiStatus { LOADING, ERROR, DONE }
+enum class StopsListApiStatus { LOADING, ERROR, DONE }
 
-class AppViewModel : ViewModel() {
+class StopsListViewModel : ViewModel() {
     private val _stops = mutableStateListOf<MetrolinkStopsEntry>()
     val stops: List<MetrolinkStopsEntry>
         get() = _stops
 
-    private val _status = mutableStateOf(AppApiStatus.LOADING)
-    val status: AppApiStatus
+    private val _status = mutableStateOf(StopsListApiStatus.LOADING)
+    val status: StopsListApiStatus
         get() = _status.value
-
-    private val _errorMessage = mutableStateOf<String?>(null)
-    val errorMessage: String?
-        get() = _errorMessage.value
 
     fun getMetrolinks() {
         viewModelScope.launch {
-            _status.value = AppApiStatus.LOADING
-            _errorMessage.value = null
+            _status.value = StopsListApiStatus.LOADING
             try {
                 _stops.clear()
                 _stops.addAll(
                     MetrolinkStopsApi.retrofitService.getStops()
                         .sortedBy { it.stationLocation })
-                _status.value = AppApiStatus.DONE
+                _status.value = StopsListApiStatus.DONE
             } catch (e: Exception) {
                 _stops.clear()
-                _status.value = AppApiStatus.ERROR
-                _errorMessage.value = e.message
+                _status.value = StopsListApiStatus.ERROR
                 Log.w(TAG, "Could not load stops: ${e.message}")
             }
         }

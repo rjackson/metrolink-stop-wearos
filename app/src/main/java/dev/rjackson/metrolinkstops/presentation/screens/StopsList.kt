@@ -7,17 +7,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.material.*
 import dev.rjackson.metrolinkstops.R
-import dev.rjackson.metrolinkstops.presentation.AppApiStatus
-import dev.rjackson.metrolinkstops.presentation.AppViewModel
+import dev.rjackson.metrolinkstops.presentation.StopsListApiStatus
+import dev.rjackson.metrolinkstops.presentation.StopsListViewModel
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
 
 @Composable
 fun LinesList(
     modifier: Modifier = Modifier,
     scalingLazyListState: ScalingLazyListState,
-    viewModel: AppViewModel,
+    viewModel: StopsListViewModel = viewModel(),
     onLineClick: (String) -> Unit,
     onSettingsClick: () -> Unit
 ) {
@@ -33,12 +34,13 @@ fun LinesList(
         item {
             Text(
                 text = stringResource(R.string.app_name),
-                color = MaterialTheme.colors.primary
+                color = MaterialTheme.colors.primary,
+                style = MaterialTheme.typography.title3
             )
             Spacer(modifier = Modifier.height(24.dp))
         }
         when (viewModel.status) {
-            AppApiStatus.DONE -> {
+            StopsListApiStatus.DONE -> {
                 items(viewModel.stops) { stop ->
                     Chip(
                         modifier = Modifier.fillMaxWidth(),
@@ -55,11 +57,11 @@ fun LinesList(
                     )
                 }
             }
-            AppApiStatus.LOADING -> {
+            StopsListApiStatus.LOADING -> {
                 item { Text(stringResource(R.string.loading)) }
             }
-            AppApiStatus.ERROR -> {
-                item { Text(stringResource(R.string.error, viewModel.errorMessage ?: "(Unknown)")) }
+            StopsListApiStatus.ERROR -> {
+                item { Text(stringResource(R.string.error)) }
             }
         }
 
@@ -79,7 +81,7 @@ fun LinesList(
 fun LinesListPreview() {
     LinesList(
         scalingLazyListState = rememberScalingLazyListState(),
-        viewModel = AppViewModel(),
+        viewModel = StopsListViewModel(),
         onLineClick = {},
         onSettingsClick = {}
     )

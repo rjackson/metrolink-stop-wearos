@@ -19,6 +19,6 @@ data class MetrolinkStopDetail(
         val destination: String,
         val type: Carriages,
         val status: Status,
-        val wait: Number
+        val wait: Int
     )
 }
