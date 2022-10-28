@@ -1,4 +1,4 @@
-package dev.rjackson.metrolinkstops.presentation.screens
+package dev.rjackson.metrolinkstops.presentation.screens.settings
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +17,7 @@ import com.google.android.horologist.compose.navscaffold.scrollableColumn
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
 
 @Composable
-fun Settings(
+fun SettingsScreen(
     modifier: Modifier = Modifier,
     scrollableState: ScrollState,
     focusRequester: FocusRequester
@@ -44,7 +44,7 @@ fun Settings(
 @WearDevicePreview
 @Composable
 fun SettingsPreview() {
-    Settings(
+    SettingsScreen(
         scrollableState = ScrollState(0),
         focusRequester = FocusRequester()
     )

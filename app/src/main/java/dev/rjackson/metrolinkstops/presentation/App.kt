@@ -9,9 +9,9 @@ import com.google.android.horologist.compose.navscaffold.WearNavScaffold
 import com.google.android.horologist.compose.navscaffold.scalingLazyColumnComposable
 import com.google.android.horologist.compose.navscaffold.scrollStateComposable
 import com.google.android.horologist.compose.navscaffold.scrollableColumn
-import dev.rjackson.metrolinkstops.presentation.screens.LinesList
-import dev.rjackson.metrolinkstops.presentation.screens.Settings
-import dev.rjackson.metrolinkstops.presentation.screens.StopDetails
+import dev.rjackson.metrolinkstops.presentation.screens.list.StopsListScreen
+import dev.rjackson.metrolinkstops.presentation.screens.settings.SettingsScreen
+import dev.rjackson.metrolinkstops.presentation.screens.details.StopDetailsScreen
 import dev.rjackson.metrolinkstops.presentation.theme.MetrolinkStopsTheme
 
 @Composable
@@ -34,7 +34,7 @@ fun App(modifier: Modifier = Modifier) {
                 scrollStateBuilder = { ScalingLazyListState() }
             ) {
                 renderTimeText = renderDefaultTimeText
-                LinesList(
+                StopsListScreen(
                     modifier = Modifier
                         .scrollableColumn(
                             it.viewModel.focusRequester,
@@ -54,7 +54,7 @@ fun App(modifier: Modifier = Modifier) {
                 route = "line_detail/{stationLocation}",
                 scrollStateBuilder = { ScalingLazyListState() }
             ) {
-                StopDetails(
+                StopDetailsScreen(
                     modifier = Modifier
                         .scrollableColumn(
                             it.viewModel.focusRequester,
@@ -73,7 +73,7 @@ fun App(modifier: Modifier = Modifier) {
                 scrollStateBuilder = { ScrollState(0) }
             ) {
                 renderTimeText = renderDefaultTimeText
-                Settings(
+                SettingsScreen(
                     scrollableState = it.scrollableState,
                     focusRequester = it.viewModel.focusRequester
                 )

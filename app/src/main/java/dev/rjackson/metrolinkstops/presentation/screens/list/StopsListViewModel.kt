@@ -1,4 +1,4 @@
-package dev.rjackson.metrolinkstops.presentation
+package dev.rjackson.metrolinkstops.presentation.screens.list
 
 import androidx.lifecycle.ViewModel
 import dev.rjackson.metrolinkstops.data.Stop

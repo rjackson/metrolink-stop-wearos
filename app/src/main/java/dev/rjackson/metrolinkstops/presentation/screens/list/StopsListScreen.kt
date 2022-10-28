@@ -1,4 +1,4 @@
-package dev.rjackson.metrolinkstops.presentation.screens
+package dev.rjackson.metrolinkstops.presentation.screens.list
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
@@ -9,11 +9,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.material.*
 import dev.rjackson.metrolinkstops.R
-import dev.rjackson.metrolinkstops.presentation.StopsListViewModel
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
 
 @Composable
-fun LinesList(
+fun StopsListScreen(
     modifier: Modifier = Modifier,
     scalingLazyListState: ScalingLazyListState,
     viewModel: StopsListViewModel = viewModel(),
@@ -62,8 +61,8 @@ fun LinesList(
 
 @WearDevicePreview
 @Composable
-fun LinesListPreview() {
-    LinesList(
+fun StopsListScreenPreview() {
+    StopsListScreen(
         scalingLazyListState = rememberScalingLazyListState(),
         viewModel = StopsListViewModel(),
         onLineClick = {},

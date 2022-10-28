@@ -1,8 +1,7 @@
-package dev.rjackson.metrolinkstops.presentation.screens
+package dev.rjackson.metrolinkstops.presentation.screens.details
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -16,23 +15,23 @@ import androidx.wear.compose.material.*
 import dev.rjackson.metrolinkstops.network.metrolinkstops.Carriages
 import dev.rjackson.metrolinkstops.network.metrolinkstops.MetrolinkStopDetail
 import dev.rjackson.metrolinkstops.network.metrolinkstops.Status
-import dev.rjackson.metrolinkstops.presentation.StopDetailsApiStatus
-import dev.rjackson.metrolinkstops.presentation.StopDetailsViewModel
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
 
 @Composable
-fun StopDetails(
+fun StopDetailsScreen(
     modifier: Modifier = Modifier,
     stationLocation: String,
     viewModel: StopDetailsViewModel = viewModel(),
     scalingLazyListState: ScalingLazyListState,
     onSetTimeText: (@Composable (Modifier) -> Unit) -> Unit
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     val titleStyle = MaterialTheme.typography.title3
     val titleColor = MaterialTheme.colors.primary
+
     LaunchedEffect(Unit) {
         viewModel.refreshDepartures(stationLocation)
         onSetTimeText @Composable {
@@ -56,9 +55,7 @@ fun StopDetails(
     }
 
     StopDetailsColumn(
-        status = viewModel.status,
-        departures = viewModel.departures,
-        lastUpdated = viewModel.lastUpdated,
+        uiState = uiState,
         scalingLazyListState = scalingLazyListState,
         onClickRefresh = {
             viewModel.refreshDepartures(
@@ -71,9 +68,7 @@ fun StopDetails(
 
 @Composable
 fun StopDetailsColumn(
-    status: StopDetailsApiStatus,
-    departures: List<MetrolinkStopDetail.DepartureEntry>,
-    lastUpdated: Date?,
+    uiState: StopDetailsUiState,
     scalingLazyListState: ScalingLazyListState,
     onClickRefresh: () -> Unit,
     modifier: Modifier = Modifier
@@ -93,61 +88,65 @@ fun StopDetailsColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             autoCentering = AutoCenteringParams(0)
         ) {
-            when (status) {
-                StopDetailsApiStatus.DONE -> {
-                    // Dynamically set label width, to balance short vs long destination names
-                    // TODO: Figure out how to do this via UI by wrapping content, auto centering, and scaling up
-                    //  to a maxWdith
-                    val departureLenths =
-                        departures.map { departure -> departure.destination.length }
-                    val maxDepartureLength = departureLenths.maxOrNull() ?: 0
-                    val labelProportion = when (maxDepartureLength) {
-                        in 0..6 -> 0.5f
-                        in 7..8 -> 0.55f
-                        in 9..10 -> 0.6f
-                        else -> 0.66f
-                    }
-                    val waitProportion = 1f - labelProportion
+            when (uiState) {
+                is StopDetailsUiState.Success -> {
+                    with(uiState.stopDetail) {
+                        // Dynamically set label width, to balance short vs long destination names
+                        // TODO: Figure out how to do this via UI by wrapping content, auto centering, and scaling up
+                        //  to a maxWdith
+                        val departureLenths =
+                            departures.map { departure -> departure.destination.length }
+                        val maxDepartureLength = departureLenths.maxOrNull() ?: 0
+                        val labelProportion = when (maxDepartureLength) {
+                            in 0..6 -> 0.5f
+                            in 7..8 -> 0.55f
+                            in 9..10 -> 0.6f
+                            else -> 0.66f
+                        }
+                        val waitProportion = 1f - labelProportion
 
-                    items(departures) { departure ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.Bottom
-                        ) {
-                            Text(
-                                modifier = Modifier.fillParentMaxWidth(labelProportion),
-                                text = departure.destination,
-                                maxLines = 1,
-                                textAlign = TextAlign.Right,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                        items(departures) { departure ->
                             Row(
-                                modifier = Modifier.fillParentMaxWidth(waitProportion),
-                                verticalAlignment = Alignment.Bottom,
-                                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.Bottom
                             ) {
                                 Text(
-                                    text = departure.wait.toString(),
+                                    modifier = Modifier.fillParentMaxWidth(labelProportion),
+                                    text = departure.destination,
+                                    maxLines = 1,
                                     textAlign = TextAlign.Right,
-                                    style = MaterialTheme.typography.body2.copy(fontFeatureSettings = "tnum"),
-                                    fontWeight = FontWeight.Black,
-                                    color = MaterialTheme.colors.primary
+                                    overflow = TextOverflow.Ellipsis
                                 )
-                                Text(
-                                    // This is an abbreviation. How do I describe it?
-                                    text = "m",
-                                    textAlign = TextAlign.Left,
-                                    fontSize = 12.sp,
-                                )
+                                Row(
+                                    modifier = Modifier.fillParentMaxWidth(waitProportion),
+                                    verticalAlignment = Alignment.Bottom,
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = departure.wait.toString(),
+                                        textAlign = TextAlign.Right,
+                                        style = MaterialTheme.typography.body2.copy(
+                                            fontFeatureSettings = "tnum"
+                                        ),
+                                        fontWeight = FontWeight.Black,
+                                        color = MaterialTheme.colors.primary
+                                    )
+                                    Text(
+                                        // This is an abbreviation. How do I describe it?
+                                        text = "m",
+                                        textAlign = TextAlign.Left,
+                                        fontSize = 12.sp,
+                                    )
+                                }
                             }
                         }
                     }
                 }
-                StopDetailsApiStatus.LOADING -> {
+                is StopDetailsUiState.Loading -> {
                     item { Text(text = "Loading") }
                 }
-                StopDetailsApiStatus.ERROR -> {
+                is StopDetailsUiState.Error -> {
                     item { Text(text = "Error") }
                 }
             }
@@ -155,12 +154,12 @@ fun StopDetailsColumn(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (lastUpdated != null) {
+            if (uiState is StopDetailsUiState.Success) {
                 // what's the proper _android_ way of doing this???
                 Text(
                     text = String.format(
                         "Updated: %s",
-                        lastUpdated
+                        uiState.stopDetail.lastUpdated
                             .toInstant()
                             .atZone(ZoneId.systemDefault())
                             .toLocalTime()
@@ -221,11 +220,20 @@ fun StopDetailsColumnPreview() {
             wait = (0..25).random(),
         )
     )
+    val messages = listOf(
+        "Pigeons on the tracks!",
+        "Football's a kickin'"
+    )
     StopDetailsColumn(
-        status = StopDetailsApiStatus.DONE,
-        departures = departures.sortedBy { it.wait },
+        uiState = StopDetailsUiState.Success(
+            MetrolinkStopDetail(
+                name = "Great Stop",
+                departures = departures,
+                messages = messages,
+                lastUpdated = Date()
+            )
+        ),
         scalingLazyListState = ScalingLazyListState(),
-        lastUpdated = Date(),
         onClickRefresh = {}
     )
 }
@@ -247,11 +255,20 @@ fun StopDetailsColumnShortPreview() {
             wait = 23,
         ),
     )
+    val messages = listOf(
+        "Pigeons on the tracks!",
+        "Football's a kickin'"
+    )
     StopDetailsColumn(
-        status = StopDetailsApiStatus.DONE,
-        departures = departures.sortedBy { it.wait },
+        uiState = StopDetailsUiState.Success(
+            MetrolinkStopDetail(
+                name = "Great Stop",
+                departures = departures,
+                messages = messages,
+                lastUpdated = Date()
+            )
+        ),
         scalingLazyListState = ScalingLazyListState(),
-        lastUpdated = Date(),
         onClickRefresh = {}
     )
 }
