@@ -1,7 +1,25 @@
 package dev.rjackson.metrolinkstops.network.metrolinkstops
 
-import dev.rjackson.metrolinkstops.network.tfgm.Carriages
-import dev.rjackson.metrolinkstops.network.tfgm.Status
+import com.squareup.moshi.Json
+
+enum class Carriages {
+    @Json(name = "Single")
+    SINGLE,
+
+    @Json(name = "Double")
+    DOUBLE
+}
+
+enum class Status {
+    @Json(name = "Due")
+    DUE,
+
+    @Json(name = "Departing")
+    DEPARTING,
+
+    @Json(name = "Arrived")
+    ARRIVED
+}
 
 data class MetrolinkStopDetail(
     val name: String,

@@ -13,9 +13,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.foundation.*
 import androidx.wear.compose.material.*
+import dev.rjackson.metrolinkstops.network.metrolinkstops.Carriages
 import dev.rjackson.metrolinkstops.network.metrolinkstops.MetrolinkStopDetail
-import dev.rjackson.metrolinkstops.network.tfgm.Carriages
-import dev.rjackson.metrolinkstops.network.tfgm.Status
+import dev.rjackson.metrolinkstops.network.metrolinkstops.Status
 import dev.rjackson.metrolinkstops.presentation.StopDetailsApiStatus
 import dev.rjackson.metrolinkstops.presentation.StopDetailsViewModel
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
