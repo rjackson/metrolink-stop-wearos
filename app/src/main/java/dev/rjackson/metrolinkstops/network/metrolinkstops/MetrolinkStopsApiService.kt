@@ -11,9 +11,6 @@ import retrofit2.http.Path
 
 /**
  * @link https://github.com/rjackson/metrolink-stop
- *
- *  TODO: Learn how to persist data. I.e. there won't be any new/old stops very often. No need to
- *  pull a fresh list of stops on every launch.
  */
 
 private val BASE_URL = BuildConfig.METROLINK_STOPS_BASE_URL
@@ -30,9 +27,6 @@ private val retrofit =
 
 
 interface MetrolinkStopsService {
-    @GET("stops")
-    suspend fun getStops(): List<MetrolinkStopsEntry>
-
     @GET("stop/{name}")
     suspend fun getStop(
         @Path(value = "name") name: String
