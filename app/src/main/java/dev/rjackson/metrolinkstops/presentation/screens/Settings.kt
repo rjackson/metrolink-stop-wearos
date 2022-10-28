@@ -1,21 +1,35 @@
 package dev.rjackson.metrolinkstops.presentation.screens
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
+import com.google.android.horologist.compose.navscaffold.scrollableColumn
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
 
 @Composable
-fun Settings(modifier: Modifier = Modifier) {
+fun Settings(
+    modifier: Modifier = Modifier,
+    scrollableState: ScrollState,
+    focusRequester: FocusRequester
+) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(state = scrollableState)
+            .scrollableColumn(
+                focusRequester = focusRequester,
+                scrollableState = scrollableState
+            ),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -30,5 +44,8 @@ fun Settings(modifier: Modifier = Modifier) {
 @WearDevicePreview
 @Composable
 fun SettingsPreview() {
-    Settings()
+    Settings(
+        scrollableState = ScrollState(0),
+        focusRequester = FocusRequester()
+    )
 }

@@ -1,12 +1,17 @@
 package dev.rjackson.metrolinkstops.presentation.screens
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.wear.compose.foundation.*
 import androidx.wear.compose.material.*
+import com.google.android.horologist.compose.navscaffold.scrollableColumn
 import dev.rjackson.metrolinkstops.network.tfgm.Carriages
 import dev.rjackson.metrolinkstops.presentation.StopDetailsApiStatus
 import dev.rjackson.metrolinkstops.presentation.StopDetailsViewModel
@@ -16,32 +21,55 @@ import dev.rjackson.metrolinkstops.tools.WearDevicePreview
 fun StopDetails(
     modifier: Modifier = Modifier,
     stationLocation: String,
-    viewModel: StopDetailsViewModel = viewModel()
+    viewModel: StopDetailsViewModel = viewModel(),
+    scrollableState: ScrollState,
+    focusRequester: FocusRequester,
+    onSetTimeText: (@Composable (Modifier) -> Unit) -> Unit
 ) {
-    LaunchedEffect(Unit, block = {
+    val titleStyle = MaterialTheme.typography.title3
+    val titleColor = MaterialTheme.colors.primary
+    LaunchedEffect(Unit) {
         viewModel.refreshDepartures(stationLocation)
-    })
+        onSetTimeText @Composable {
+            TimeText(
+                startCurvedContent = {
+                    curvedText(
+                        style = CurvedTextStyle(titleStyle),
+                        color = titleColor,
+                        text = stationLocation
+                    )
+                },
+                startLinearContent = {
+                    Text(
+                        style = titleStyle,
+                        color = titleColor,
+                        text = stationLocation
+                    )
+                }
+            )
+        }
+    }
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ScalingLazyColumn(
-            modifier = modifier.weight(1f),
+
+        Column(
+            modifier = modifier
+                .weight(1f)
+                .verticalScroll(state = scrollableState)
+                .scrollableColumn(
+                    focusRequester = focusRequester,
+                    scrollableState = scrollableState
+                ),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            item {
-                Text(
-                    text = stationLocation,
-                    color = MaterialTheme.colors.primary,
-                    style = MaterialTheme.typography.title3
-                )
-            }
-
             when (viewModel.status) {
                 StopDetailsApiStatus.DONE -> {
-                    items(viewModel.departures) { departure ->
+                    for (departure in viewModel.departures) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
@@ -53,19 +81,19 @@ fun StopDetails(
                     }
                 }
                 StopDetailsApiStatus.LOADING -> {
-                    item { Text(text = "Loading") }
+                    Text(text = "Loading")
                 }
                 StopDetailsApiStatus.ERROR -> {
-                    item { Text(text = "Error") }
+                    Text(text = "Error")
                 }
             }
         }
         CompactChip(
             onClick = { viewModel.refreshDepartures(stationLocation) },
-            label = { Text(text = "Refresh") }
+            label = { Text(text = "Refresh") },
+            colors = ChipDefaults.secondaryChipColors()
         )
     }
-
 }
 
 @Composable
@@ -81,7 +109,10 @@ fun DepartureText(type: Carriages) {
 @Composable
 fun StopDetailsPreview() {
     StopDetails(
-        stationLocation = "Good Station",
-        viewModel = StopDetailsViewModel()
+        stationLocation = "Deansgate - Castlefield",
+        viewModel = StopDetailsViewModel(),
+        scrollableState = ScrollState(0),
+        focusRequester = FocusRequester(),
+        onSetTimeText = {}
     )
 }
