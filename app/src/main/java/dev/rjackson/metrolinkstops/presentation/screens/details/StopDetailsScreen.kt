@@ -1,12 +1,17 @@
 package dev.rjackson.metrolinkstops.presentation.screens.details
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -73,20 +78,17 @@ fun StopDetailsColumn(
     onClickRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ScalingLazyColumn(
             modifier = modifier
-                .weight(1f),
+                .fillMaxSize()
+                .padding(top = 24.dp, bottom = 24.dp),
             state = scalingLazyListState,
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
-            autoCentering = AutoCenteringParams(0)
         ) {
             when (uiState) {
                 is StopDetailsUiState.Success -> {
@@ -151,29 +153,86 @@ fun StopDetailsColumn(
                 }
             }
         }
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+        Button(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 24.dp)
+                .size(ButtonDefaults.DefaultIconSize),
+            onClick = { onClickRefresh() },
+            colors = ButtonDefaults.secondaryButtonColors(),
         ) {
-            if (uiState is StopDetailsUiState.Success) {
-                // what's the proper _android_ way of doing this???
-                Text(
-                    text = String.format(
-                        "Updated: %s",
-                        uiState.stopDetail.lastUpdated
-                            .toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalTime()
-                            .format(
-                                DateTimeFormatter.ISO_LOCAL_TIME
-                            )
-                    ),
-                    style = MaterialTheme.typography.caption3,
+            Icon(imageVector = Icons.Rounded.Refresh, contentDescription = "Refresh")
+        }
+
+        if (uiState is StopDetailsUiState.Success) {
+            CurvedLastUpdated(
+                lastUpdated = uiState.stopDetail.lastUpdated,
+                anchor = 90f,
+                angularDirection = CurvedDirection.Angular.Reversed,
+            )
+        }
+    }
+}
+
+@Composable
+fun CurvedLastUpdated(
+    lastUpdated: Date,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = TimeTextDefaults.ContentPadding,
+    timeTextStyle: TextStyle = TimeTextDefaults.timeTextStyle(),
+    anchor: Float = 270f,
+    anchorType: AnchorType = AnchorType.Center,
+    radialAlignment: CurvedAlignment.Radial? = null,
+    angularDirection: CurvedDirection.Angular = CurvedDirection.Angular.Normal,
+) {
+    // what's the proper _android_ way of doing this???
+    val formattedTime = lastUpdated
+        .toInstant()
+        .atZone(ZoneId.systemDefault())
+        .toLocalTime()
+        .format(DateTimeFormatter.ISO_LOCAL_TIME)
+
+    val text = String.format(
+        "Last updated: %s",
+        formattedTime
+    )
+
+    if (LocalConfiguration.current.isScreenRound) {
+        CurvedLayout(
+            modifier = modifier,
+            anchor = anchor,
+            anchorType = anchorType,
+            radialAlignment = radialAlignment,
+            angularDirection = angularDirection,
+        ) {
+            curvedRow(
+                modifier = CurvedModifier.padding(
+                    ArcPaddingValues(
+                        outer = contentPadding.calculateTopPadding(),
+                        inner = contentPadding.calculateBottomPadding(),
+                        before = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
+                        after = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
+                    )
+                )
+            ) {
+                curvedText(
+                    text = text,
+                    style = CurvedTextStyle(timeTextStyle)
                 )
             }
-            CompactChip(
-                onClick = { onClickRefresh() },
-                label = { Text(text = "Refresh") },
-                colors = ChipDefaults.secondaryChipColors()
+        }
+    } else {
+        Row(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(contentPadding),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = text,
+                maxLines = 1,
+                style = timeTextStyle,
             )
         }
     }
@@ -203,6 +262,18 @@ fun StopDetailsColumnPreview() {
         ),
         MetrolinkStopDetail.DepartureEntry(
             destination = "St Peter's Square",
+            type = Carriages.DOUBLE,
+            status = Status.DUE,
+            wait = (0..25).random(),
+        ),
+        MetrolinkStopDetail.DepartureEntry(
+            destination = "See Tram Front",
+            type = Carriages.DOUBLE,
+            status = Status.DUE,
+            wait = (0..25).random(),
+        ),
+        MetrolinkStopDetail.DepartureEntry(
+            destination = "Long long long long long long long long long long",
             type = Carriages.DOUBLE,
             status = Status.DUE,
             wait = (0..25).random(),
