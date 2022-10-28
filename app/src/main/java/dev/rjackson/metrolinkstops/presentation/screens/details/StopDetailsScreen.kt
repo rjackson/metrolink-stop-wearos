@@ -107,41 +107,45 @@ fun StopDetailsColumn(
                         }
                         val waitProportion = 1f - labelProportion
 
-                        items(departures) { departure ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.Bottom
-                            ) {
-                                Text(
-                                    modifier = Modifier.fillParentMaxWidth(labelProportion),
-                                    text = departure.destination,
-                                    maxLines = 1,
-                                    textAlign = TextAlign.Right,
-                                    overflow = TextOverflow.Ellipsis
-                                )
+                        if (departures.isNotEmpty()) {
+                            items(departures) { departure ->
                                 Row(
-                                    modifier = Modifier.fillParentMaxWidth(waitProportion),
-                                    verticalAlignment = Alignment.Bottom,
-                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.Bottom
                                 ) {
                                     Text(
-                                        text = departure.wait.toString(),
+                                        modifier = Modifier.fillParentMaxWidth(labelProportion),
+                                        text = departure.destination,
+                                        maxLines = 1,
                                         textAlign = TextAlign.Right,
-                                        style = MaterialTheme.typography.body2.copy(
-                                            fontFeatureSettings = "tnum"
-                                        ),
-                                        fontWeight = FontWeight.Black,
-                                        color = MaterialTheme.colors.primary
+                                        overflow = TextOverflow.Ellipsis
                                     )
-                                    Text(
-                                        // This is an abbreviation. How do I describe it?
-                                        text = "m",
-                                        textAlign = TextAlign.Left,
-                                        fontSize = 12.sp,
-                                    )
+                                    Row(
+                                        modifier = Modifier.fillParentMaxWidth(waitProportion),
+                                        verticalAlignment = Alignment.Bottom,
+                                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                    ) {
+                                        Text(
+                                            text = departure.wait.toString(),
+                                            textAlign = TextAlign.Right,
+                                            style = MaterialTheme.typography.body2.copy(
+                                                fontFeatureSettings = "tnum"
+                                            ),
+                                            fontWeight = FontWeight.Black,
+                                            color = MaterialTheme.colors.primary
+                                        )
+                                        Text(
+                                            // This is an abbreviation. How do I describe it?
+                                            text = "m",
+                                            textAlign = TextAlign.Left,
+                                            fontSize = 12.sp,
+                                        )
+                                    }
                                 }
                             }
+                        } else {
+                            item { Text(text = "(No departures listed)") }
                         }
                     }
                 }
