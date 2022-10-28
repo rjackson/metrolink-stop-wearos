@@ -19,6 +19,9 @@ import dev.rjackson.metrolinkstops.network.metrolinkstops.Status
 import dev.rjackson.metrolinkstops.presentation.StopDetailsApiStatus
 import dev.rjackson.metrolinkstops.presentation.StopDetailsViewModel
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 @Composable
 fun StopDetails(
@@ -70,7 +73,7 @@ fun StopDetails(
 fun StopDetailsColumn(
     status: StopDetailsApiStatus,
     departures: List<MetrolinkStopDetail.DepartureEntry>,
-    lastUpdated: String?,
+    lastUpdated: Date?,
     scalingLazyListState: ScalingLazyListState,
     onClickRefresh: () -> Unit,
     modifier: Modifier = Modifier
@@ -153,8 +156,18 @@ fun StopDetailsColumn(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (lastUpdated != null) {
+                // what's the proper _android_ way of doing this???
                 Text(
-                    text = String.format("Updated: %s", lastUpdated),
+                    text = String.format(
+                        "Updated: %s",
+                        lastUpdated
+                            .toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalTime()
+                            .format(
+                                DateTimeFormatter.ISO_LOCAL_TIME
+                            )
+                    ),
                     style = MaterialTheme.typography.caption3,
                 )
             }
@@ -212,7 +225,7 @@ fun StopDetailsColumnPreview() {
         status = StopDetailsApiStatus.DONE,
         departures = departures.sortedBy { it.wait },
         scalingLazyListState = ScalingLazyListState(),
-        lastUpdated = "blah",
+        lastUpdated = Date(),
         onClickRefresh = {}
     )
 }
@@ -238,7 +251,7 @@ fun StopDetailsColumnShortPreview() {
         status = StopDetailsApiStatus.DONE,
         departures = departures.sortedBy { it.wait },
         scalingLazyListState = ScalingLazyListState(),
-        lastUpdated = "blah",
+        lastUpdated = Date(),
         onClickRefresh = {}
     )
 }

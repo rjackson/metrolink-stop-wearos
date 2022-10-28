@@ -1,6 +1,7 @@
 package dev.rjackson.metrolinkstops.network.metrolinkstops
 
 import com.squareup.moshi.Json
+import java.util.Date
 
 enum class Carriages {
     @Json(name = "Single")
@@ -25,7 +26,7 @@ data class MetrolinkStopDetail(
     val name: String,
     val departures: List<DepartureEntry>,
     val messages: List<String>,
-    val lastUpdated: String,
+    val lastUpdated: Date,
 ) {
     data class DepartureEntry(
         val destination: String,

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dev.rjackson.metrolinkstops.network.metrolinkstops.MetrolinkStopDetail
 import dev.rjackson.metrolinkstops.network.metrolinkstops.MetrolinkStopsApi
 import kotlinx.coroutines.launch
+import java.util.*
 
 private const val TAG = "StopDetailsViewModel"
 
@@ -18,8 +19,8 @@ class StopDetailsViewModel : ViewModel() {
     val departures: List<MetrolinkStopDetail.DepartureEntry>
         get() = _departures
 
-    private val _lastUpdated = mutableStateOf<String?>(null)
-    val lastUpdated: String?
+    private val _lastUpdated = mutableStateOf<Date?>(null)
+    val lastUpdated: Date?
         get() = _lastUpdated.value
 
     private val _status = mutableStateOf(StopDetailsApiStatus.LOADING)
