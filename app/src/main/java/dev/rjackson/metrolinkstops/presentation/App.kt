@@ -50,14 +50,18 @@ fun App(modifier: Modifier = Modifier) {
                 )
             }
 
-            scrollStateComposable(
+            scalingLazyColumnComposable(
                 route = "line_detail/{stationLocation}",
-                scrollStateBuilder = { ScrollState(0) }
+                scrollStateBuilder = { ScalingLazyListState() }
             ) {
                 StopDetails(
+                    modifier = Modifier
+                        .scrollableColumn(
+                            it.viewModel.focusRequester,
+                            it.scrollableState
+                        ),
                     stationLocation = it.backStackEntry.arguments?.getString("stationLocation")!!,
-                    scrollableState = it.scrollableState,
-                    focusRequester = it.viewModel.focusRequester,
+                    scalingLazyListState = it.scrollableState,
                     onSetTimeText = {
                         renderTimeText = it
                     }
