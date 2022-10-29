@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import dev.rjackson.metrolinkstops.data.Stop.Companion.toStop
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -14,14 +13,17 @@ class StopsRepo(
     private val context: Context
 ) {
     fun getFavoriteStops(): Flow<List<Stop>> = context.dataStore.data.map { preferences ->
-        preferences.asMap().values.map { stop ->
-            (stop as String).toStop()
+        preferences.asMap().values.map {
+            Stop(
+                name = it as String,
+                favourite = true
+            )
         }
     }
 
     suspend fun favouriteStop(stop: Stop) {
         context.dataStore.edit {
-            it[stringPreferencesKey(stop.name)] = stop.toPreferenceString()
+            it[stringPreferencesKey(stop.name)] = stop.name
         }
     }
 

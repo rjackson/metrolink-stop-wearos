@@ -1,4 +1,4 @@
-package dev.rjackson.metrolinkstops.presentation.screens.list
+package dev.rjackson.metrolinkstops.presentation.screens.favourites
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -10,17 +10,17 @@ import dev.rjackson.metrolinkstops.data.Stop
 import dev.rjackson.metrolinkstops.presentation.components.StopsList
 
 @Composable
-fun StopsListScreen(
+fun FavStopsListScreen(
     modifier: Modifier = Modifier,
     scalingLazyListState: ScalingLazyListState,
-    viewModel: StopsListViewModel = viewModel(factory = StopsListViewModel.Factory),
+    viewModel: FavStopsListViewModel = viewModel(factory = FavStopsListViewModel.Factory),
     onLineClick: (Stop) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     StopsList(
-        title = "All stops",
-        stops = uiState.allStops,
+        title = "Favourite stops",
+        stops = uiState.stops,
         scalingLazyListState = scalingLazyListState,
         modifier = modifier,
         onLineClick = onLineClick,

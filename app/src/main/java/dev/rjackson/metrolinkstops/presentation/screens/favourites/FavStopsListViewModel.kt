@@ -1,4 +1,4 @@
-package dev.rjackson.metrolinkstops.presentation.screens.list
+package dev.rjackson.metrolinkstops.presentation.screens.favourites
 
 import androidx.lifecycle.*
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -11,16 +11,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-data class StopsListUiState(
-    val allStops: List<Stop>
+data class FavStopsListUiState(
+    val stops: List<Stop>
 )
 
-class StopsListViewModel(
+class FavStopsListViewModel(
     private val stopsRepo: StopsRepo
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(StopsListUiState(allStops = emptyList()))
-    val uiState: StateFlow<StopsListUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(FavStopsListUiState(stops = emptyList()))
+    val uiState: StateFlow<FavStopsListUiState> = _uiState.asStateFlow()
 
     fun onFavouriteChange(stop: Stop, checked: Boolean) {
         viewModelScope.launch {
@@ -29,16 +29,21 @@ class StopsListViewModel(
             } else {
                 stopsRepo.unFavouriteStop(stop)
             }
+            refreshStops()
+        }
+    }
+
+    suspend fun refreshStops() {
+        stopsRepo.getFavoriteStops().collect() { stops ->
+            _uiState.value = FavStopsListUiState(
+                stops = stops.sortedBy { it.name }
+            )
         }
     }
 
     init {
         viewModelScope.launch {
-            stopsRepo.getStops().collect() { allStops ->
-                _uiState.value = StopsListUiState(
-                    allStops = allStops.sortedBy { it.name }
-                )
-            }
+            refreshStops()
         }
     }
 
@@ -55,7 +60,7 @@ class StopsListViewModel(
                 // Create a SavedStateHandle for this ViewModel from extras
                 // val savedStateHandle = extras.createSavedStateHandle()
 
-                return StopsListViewModel(
+                return FavStopsListViewModel(
                     (application as MyApplication).stopsRepo
                 ) as T
             }

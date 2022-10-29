@@ -12,6 +12,8 @@ import com.google.android.horologist.compose.navscaffold.scrollableColumn
 import dev.rjackson.metrolinkstops.presentation.screens.list.StopsListScreen
 import dev.rjackson.metrolinkstops.presentation.screens.settings.SettingsScreen
 import dev.rjackson.metrolinkstops.presentation.screens.details.StopDetailsScreen
+import dev.rjackson.metrolinkstops.presentation.screens.favourites.FavStopsListScreen
+import dev.rjackson.metrolinkstops.presentation.screens.menu.MenuScreen
 import dev.rjackson.metrolinkstops.presentation.theme.MetrolinkStopsTheme
 
 @Composable
@@ -26,11 +28,53 @@ fun App(modifier: Modifier = Modifier) {
         WearNavScaffold(
             modifier = modifier,
             navController = navController,
-            startDestination = "lines_list",
+            startDestination = "menu",
             timeText = renderTimeText
         ) {
             scalingLazyColumnComposable(
-                route = "lines_list",
+                route = "menu",
+                scrollStateBuilder = { ScalingLazyListState() }
+            ) {
+                renderTimeText = renderDefaultTimeText
+                MenuScreen(
+                    modifier = Modifier
+                        .scrollableColumn(
+                            it.viewModel.focusRequester,
+                            it.scrollableState
+                        ),
+                    scalingLazyListState = it.scrollableState,
+                    onFavouritesClick = {
+                        navController.navigate("fav_stops")
+                    },
+                    onStopsClick = {
+                        navController.navigate("all_stops")
+                    },
+                    onSettingsClick = {
+                        navController.navigate("settings")
+                    }
+                )
+            }
+
+            scalingLazyColumnComposable(
+                route = "fav_stops",
+                scrollStateBuilder = { ScalingLazyListState() }
+            ) {
+                renderTimeText = renderDefaultTimeText
+                FavStopsListScreen(
+                    modifier = Modifier
+                        .scrollableColumn(
+                            it.viewModel.focusRequester,
+                            it.scrollableState
+                        ),
+                    scalingLazyListState = it.scrollableState,
+                    onLineClick = { stop ->
+                        navController.navigate("stop/${stop.name}")
+                    }
+                )
+            }
+
+            scalingLazyColumnComposable(
+                route = "all_stops",
                 scrollStateBuilder = { ScalingLazyListState() }
             ) {
                 renderTimeText = renderDefaultTimeText
@@ -42,16 +86,13 @@ fun App(modifier: Modifier = Modifier) {
                         ),
                     scalingLazyListState = it.scrollableState,
                     onLineClick = { stop ->
-                        navController.navigate("line_detail/${stop.name}")
-                    },
-                    onSettingsClick = {
-                        navController.navigate("settings")
+                        navController.navigate("stop/${stop.name}")
                     }
                 )
             }
 
             scalingLazyColumnComposable(
-                route = "line_detail/{stationLocation}",
+                route = "stop/{stationLocation}",
                 scrollStateBuilder = { ScalingLazyListState() }
             ) {
                 StopDetailsScreen(
