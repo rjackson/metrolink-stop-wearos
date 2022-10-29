@@ -1,30 +1,50 @@
 package dev.rjackson.metrolinkstops.data
 
-//private val Context.dataStore by preferencesDataStore(name = "stops")
+import android.content.Context
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import dev.rjackson.metrolinkstops.data.Stop.Companion.toStop
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+private val Context.dataStore by preferencesDataStore(name = "favourites")
 
 class StopsRepo(
-//    private val context: Context
+    private val context: Context
 ) {
-//    TODO: Somehow learn how to get all this through a viewmodel.
-//    fun getFavoriteStops(): Flow<List<Stop>> = context.dataStore.data.map { preferences ->
-//        val count = preferences[intPreferencesKey("stops.count")] ?: 0
-//
-//        (0 until count).mapNotNull {
-//            preferences[stringPreferencesKey("contact.$it")]?.toStop()
-//        }
-//    }
-//
-//    suspend fun updateStops(stop: List<Stop>) {
-//        context.dataStore.edit {
-//            it.clear()
-//            stop.forEachIndexed { index, stops ->
-//                it[stringPreferencesKey("stops.$index")] = stops.toPreferenceString()
-//            }
-//            it[intPreferencesKey("stops.count")] = stop.size
-//        }
-//    }
+    fun getFavoriteStops(): Flow<List<Stop>> = context.dataStore.data.map { preferences ->
+        preferences.asMap().values.map { stop ->
+            (stop as String).toStop()
+        }
+    }
 
-    fun getStops(): List<Stop> = knownStops.sortedBy { it.name }
+    suspend fun favouriteStop(stop: Stop) {
+        context.dataStore.edit {
+            it[stringPreferencesKey(stop.name)] = stop.toPreferenceString()
+        }
+    }
+
+    suspend fun unFavouriteStop(stop: Stop) {
+        context.dataStore.edit {
+            it.remove(stringPreferencesKey(stop.name))
+        }
+    }
+
+    // This is probably unnecessarily overcomplicated in ways I don't understand. I bet this is
+    // extremely standard stuff for Android devs, but oh boy did I struggle getting to this point
+    fun getStops(): Flow<List<Stop>> =
+        getFavoriteStops().map { favouriteStops: List<Stop> ->
+            val favouriteStopNames: Map<String, Boolean> =
+                favouriteStops.map { it.name to true }.toMap()
+            knownStops.map { stop ->
+                Stop(
+                    name = stop.name,
+                    favourite = favouriteStopNames[stop.name] ?: false
+                )
+            }
+        }
+
 
     companion object {
         val knownStops = listOf(

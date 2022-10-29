@@ -41,8 +41,8 @@ fun App(modifier: Modifier = Modifier) {
                             it.scrollableState
                         ),
                     scalingLazyListState = it.scrollableState,
-                    onLineClick = { stationLocation ->
-                        navController.navigate("line_detail/$stationLocation")
+                    onLineClick = { stop ->
+                        navController.navigate("line_detail/${stop.name}")
                     },
                     onSettingsClick = {
                         navController.navigate("settings")

@@ -2,21 +2,50 @@ package dev.rjackson.metrolinkstops.presentation.screens.list
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.material.*
 import dev.rjackson.metrolinkstops.R
+import dev.rjackson.metrolinkstops.data.Stop
+import dev.rjackson.metrolinkstops.presentation.components.StarCheckbox
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
 
 @Composable
 fun StopsListScreen(
     modifier: Modifier = Modifier,
     scalingLazyListState: ScalingLazyListState,
-    viewModel: StopsListViewModel = viewModel(),
-    onLineClick: (String) -> Unit,
+    viewModel: StopsListViewModel = viewModel(factory = StopsListViewModel.Factory),
+    onLineClick: (Stop) -> Unit,
+    onSettingsClick: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    StopsList(
+        allStops = uiState.allStops,
+        scalingLazyListState = scalingLazyListState,
+        modifier = modifier,
+        onLineClick = onLineClick,
+        onSettingsClick = onSettingsClick,
+        onFavouriteChange = { stop, checked ->
+            viewModel.onFavouriteChange(stop, checked)
+        }
+    )
+}
+
+@Composable
+fun StopsList(
+    allStops: List<Stop>,
+    scalingLazyListState: ScalingLazyListState,
+    modifier: Modifier = Modifier,
+    onLineClick: (Stop) -> Unit,
+    onFavouriteChange: (Stop, Boolean) -> Unit,
     onSettingsClick: () -> Unit
 ) {
     ScalingLazyColumn(
@@ -32,8 +61,9 @@ fun StopsListScreen(
             )
             Spacer(modifier = Modifier.height(24.dp))
         }
-        items(viewModel.stops) { stop ->
-            Chip(
+        items(allStops) { stop ->
+            val checked = stop.favourite
+            SplitToggleChip(
                 modifier = Modifier.fillMaxWidth(),
                 label = {
                     Text(
@@ -43,8 +73,20 @@ fun StopsListScreen(
                         overflow = TextOverflow.Ellipsis
                     )
                 },
-                colors = ChipDefaults.secondaryChipColors(),
-                onClick = { onLineClick(stop.name) }
+                colors = ToggleChipDefaults.splitToggleChipColors(),
+                onClick = { onLineClick(stop) },
+                checked = checked,
+                onCheckedChange = { onFavouriteChange(stop, it) },
+                toggleControl = {
+                    StarCheckbox(
+                        checked = checked,
+                        modifier = Modifier.semantics {
+                            this.contentDescription =
+                                if (checked) "Add to favourites" else "Remove from favourites"
+                        },
+                        enabled = true
+                    )
+                },
             )
         }
 
@@ -62,10 +104,18 @@ fun StopsListScreen(
 @WearDevicePreview
 @Composable
 fun StopsListScreenPreview() {
-    StopsListScreen(
+    val allStops = listOf(
+        Stop("Altrincham"),
+        Stop("Navigation Road"),
+        Stop("Timperley"),
+        Stop("Brooklands"),
+        Stop("Sale"),
+    )
+    StopsList(
+        allStops = allStops,
         scalingLazyListState = rememberScalingLazyListState(),
-        viewModel = StopsListViewModel(),
         onLineClick = {},
+        onFavouriteChange = { _, _ -> },
         onSettingsClick = {}
     )
 }

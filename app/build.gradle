@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace 'dev.rjackson.metrolinkstops'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "dev.rjackson.metrolinkstops"
         minSdk 30
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
         vectorDrawables {
@@ -32,6 +32,11 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+
+        // some viewmodel factory stuff???
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
     }
     buildFeatures {
         compose true
@@ -64,6 +69,7 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.3.1'
     implementation 'com.google.android.material:material:1.7.0'
     implementation "com.google.android.horologist:horologist-compose-layout:0.1.15"
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
 
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
@@ -75,5 +81,4 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:1.9.3"
     implementation "com.squareup.moshi:moshi-adapters:1.9.3"
     implementation "com.squareup.retrofit2:converter-moshi:2.9.0"
-
 }

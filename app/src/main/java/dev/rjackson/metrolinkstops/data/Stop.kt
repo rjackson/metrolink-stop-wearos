@@ -1,7 +1,8 @@
 package dev.rjackson.metrolinkstops.data
 
 data class Stop(
-    val name: String
+    val name: String,
+    val favourite: Boolean = false
 ) {
     fun toPreferenceString(): String = name
 
