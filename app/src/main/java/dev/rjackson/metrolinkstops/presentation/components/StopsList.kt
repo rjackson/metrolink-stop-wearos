@@ -6,7 +6,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.*
 import dev.rjackson.metrolinkstops.data.Stop
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
@@ -32,12 +31,13 @@ fun StopsList(
         autoCentering = AutoCenteringParams(itemIndex = 1)
     ) {
         item {
-            Text(
-                modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
-                text = title,
-                color = MaterialTheme.colors.primary,
-                style = MaterialTheme.typography.title3
-            )
+            ListHeader(
+                contentColor = MaterialTheme.colors.primary,
+            ) {
+                Text(
+                    text = title
+                )
+            }
         }
         items(stops) { stop ->
             val checked = stop.favourite

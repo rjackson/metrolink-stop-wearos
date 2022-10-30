@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.*
 import dev.rjackson.metrolinkstops.R
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
@@ -24,15 +23,16 @@ fun MenuScreen(
 ) {
     ScalingLazyColumn(
         modifier = modifier.fillMaxSize(),
-        state = scalingLazyListState,
+        state = scalingLazyListState
     ) {
         item {
-            Text(
-                modifier = Modifier.padding(top = 20.dp, bottom=20.dp),
-                text = stringResource(R.string.app_name),
-                color = MaterialTheme.colors.primary,
-                style = MaterialTheme.typography.title3
-            )
+            ListHeader(
+                contentColor = MaterialTheme.colors.primary,
+            ) {
+                Text(
+                    text = stringResource(R.string.app_name),
+                )
+            }
         }
 
         item {
