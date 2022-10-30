@@ -5,10 +5,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.material.*
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
-import com.google.android.horologist.compose.navscaffold.WearNavScaffold
-import com.google.android.horologist.compose.navscaffold.scalingLazyColumnComposable
-import com.google.android.horologist.compose.navscaffold.scrollStateComposable
-import com.google.android.horologist.compose.navscaffold.scrollableColumn
+import com.google.android.horologist.compose.navscaffold.*
 import dev.rjackson.metrolinkstops.presentation.screens.list.StopsListScreen
 import dev.rjackson.metrolinkstops.presentation.screens.settings.SettingsScreen
 import dev.rjackson.metrolinkstops.presentation.screens.details.StopDetailsScreen
@@ -20,22 +17,16 @@ import dev.rjackson.metrolinkstops.presentation.theme.MetrolinkStopsTheme
 fun App(modifier: Modifier = Modifier) {
     val navController = rememberSwipeDismissableNavController()
 
-    val renderDefaultTimeText: @Composable (Modifier) -> Unit = { TimeText() }
-    var renderTimeText by remember { mutableStateOf(renderDefaultTimeText) }
-
-
     MetrolinkStopsTheme {
-        WearNavScaffold(
+        MyWearNavScaffold(
             modifier = modifier,
             navController = navController,
-            startDestination = "menu",
-            timeText = renderTimeText
+            startDestination = "menu"
         ) {
             scalingLazyColumnComposable(
                 route = "menu",
                 scrollStateBuilder = { ScalingLazyListState() }
             ) {
-                renderTimeText = renderDefaultTimeText
                 MenuScreen(
                     modifier = Modifier
                         .scrollableColumn(
@@ -59,7 +50,6 @@ fun App(modifier: Modifier = Modifier) {
                 route = "fav_stops",
                 scrollStateBuilder = { ScalingLazyListState() }
             ) {
-                renderTimeText = renderDefaultTimeText
                 FavStopsListScreen(
                     modifier = Modifier
                         .scrollableColumn(
@@ -77,7 +67,6 @@ fun App(modifier: Modifier = Modifier) {
                 route = "all_stops",
                 scrollStateBuilder = { ScalingLazyListState() }
             ) {
-                renderTimeText = renderDefaultTimeText
                 StopsListScreen(
                     modifier = Modifier
                         .scrollableColumn(
@@ -102,10 +91,7 @@ fun App(modifier: Modifier = Modifier) {
                             it.scrollableState
                         ),
                     stationLocation = it.backStackEntry.arguments?.getString("stationLocation")!!,
-                    scalingLazyListState = it.scrollableState,
-                    onSetTimeText = {
-                        renderTimeText = it
-                    }
+                    scalingLazyListState = it.scrollableState
                 )
             }
 
@@ -113,7 +99,6 @@ fun App(modifier: Modifier = Modifier) {
                 route = "settings",
                 scrollStateBuilder = { ScrollState(0) }
             ) {
-                renderTimeText = renderDefaultTimeText
                 SettingsScreen(
                     scrollableState = it.scrollableState,
                     focusRequester = it.viewModel.focusRequester

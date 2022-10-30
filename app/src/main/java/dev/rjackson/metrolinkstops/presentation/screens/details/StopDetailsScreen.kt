@@ -17,9 +17,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.foundation.*
 import androidx.wear.compose.material.*
+import com.google.android.horologist.compose.navscaffold.NavScaffoldViewModel
 import dev.rjackson.metrolinkstops.network.metrolinkstops.Carriages
 import dev.rjackson.metrolinkstops.network.metrolinkstops.MetrolinkStopDetail
 import dev.rjackson.metrolinkstops.network.metrolinkstops.Status
+import dev.rjackson.metrolinkstops.presentation.MyNavScaffoldViewModel
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -30,8 +32,9 @@ fun StopDetailsScreen(
     modifier: Modifier = Modifier,
     stationLocation: String,
     viewModel: StopDetailsViewModel = viewModel(),
-    scalingLazyListState: ScalingLazyListState,
-    onSetTimeText: (@Composable (Modifier) -> Unit) -> Unit
+    navScaffoldViewModel: NavScaffoldViewModel = viewModel(),
+    myNavScaffoldViewModel: MyNavScaffoldViewModel = viewModel(),
+    scalingLazyListState: ScalingLazyListState
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val titleStyle = MaterialTheme.typography.title3
@@ -39,8 +42,10 @@ fun StopDetailsScreen(
 
     LaunchedEffect(Unit) {
         viewModel.refreshDepartures(stationLocation)
-        onSetTimeText @Composable {
+        navScaffoldViewModel.timeTextMode = NavScaffoldViewModel.TimeTextMode.On
+        myNavScaffoldViewModel.timeText = {
             TimeText(
+                modifier = it,
                 startCurvedContent = {
                     curvedText(
                         style = CurvedTextStyle(titleStyle),
