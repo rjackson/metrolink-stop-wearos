@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.foundation.*
 import androidx.wear.compose.material.*
-import com.google.android.horologist.composables.ExperimentalHorologistComposablesApi
-import com.google.android.horologist.composables.MarqueeText
+import androidx.wear.compose.material.dialog.Alert
+import androidx.wear.compose.material.dialog.Dialog
 import com.google.android.horologist.compose.navscaffold.NavScaffoldViewModel
 import dev.rjackson.metrolinkstops.network.metrolinkstops.Carriages
 import dev.rjackson.metrolinkstops.network.metrolinkstops.MetrolinkStopDetail
@@ -28,7 +28,6 @@ import dev.rjackson.metrolinkstops.tools.WearDevicePreview
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun StopDetailsScreen(
@@ -79,7 +78,6 @@ fun StopDetailsScreen(
     )
 }
 
-@OptIn(ExperimentalHorologistComposablesApi::class)
 @Composable
 fun StopDetailsColumn(
     uiState: StopDetailsUiState,
@@ -91,13 +89,13 @@ fun StopDetailsColumn(
         modifier = modifier
             .fillMaxSize()
     ) {
+        var selectedMessage: String? by remember { mutableStateOf(null) }
+
         ScalingLazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 24.dp, bottom = 24.dp),
-            state = scalingLazyListState,
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            state = scalingLazyListState
         ) {
             when (uiState) {
                 is StopDetailsUiState.Success -> {
@@ -172,10 +170,20 @@ fun StopDetailsColumn(
                         if (messages.isEmpty()) {
                             item { Text(text = "(no messages)") }
                         } else {
-                            items(messages) {
-                                MarqueeText(
-                                    text = it,
-                                    pauseTime = 2.seconds
+                            items(messages) { message ->
+                                Chip(
+                                    label = {
+                                        Text(
+                                            text = message,
+                                            maxLines = 4,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    },
+                                    colors = ChipDefaults.outlinedChipColors(),
+                                    border = ChipDefaults.outlinedChipBorder(),
+                                    onClick = {
+                                        selectedMessage = message
+                                    }
                                 )
                             }
                         }
@@ -206,6 +214,33 @@ fun StopDetailsColumn(
                 anchor = 90f,
                 angularDirection = CurvedDirection.Angular.Reversed,
             )
+        }
+
+        Dialog(
+            showDialog = selectedMessage != null,
+            onDismissRequest = { selectedMessage = null }
+        ) {
+            Alert(
+//                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
+                contentPadding =
+                PaddingValues(start = 10.dp, end = 10.dp, top = 24.dp, bottom = 52.dp),
+                title = { Text(text = "Message", textAlign = TextAlign.Center) },
+                message = {
+                    Text(
+                        text = selectedMessage ?: "",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body2
+                    )
+                },
+            ) {
+                item {
+                    Chip(
+                        label = { Text("Close") },
+                        onClick = { selectedMessage = null },
+                        colors = ChipDefaults.primaryChipColors(),
+                    )
+                }
+            }
         }
     }
 }
