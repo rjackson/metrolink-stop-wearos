@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.foundation.*
 import androidx.wear.compose.material.*
+import com.google.android.horologist.composables.ExperimentalHorologistComposablesApi
+import com.google.android.horologist.composables.MarqueeText
 import com.google.android.horologist.compose.navscaffold.NavScaffoldViewModel
 import dev.rjackson.metrolinkstops.network.metrolinkstops.Carriages
 import dev.rjackson.metrolinkstops.network.metrolinkstops.MetrolinkStopDetail
@@ -26,6 +28,7 @@ import dev.rjackson.metrolinkstops.tools.WearDevicePreview
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun StopDetailsScreen(
@@ -76,6 +79,7 @@ fun StopDetailsScreen(
     )
 }
 
+@OptIn(ExperimentalHorologistComposablesApi::class)
 @Composable
 fun StopDetailsColumn(
     uiState: StopDetailsUiState,
@@ -84,16 +88,16 @@ fun StopDetailsColumn(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
     ) {
         ScalingLazyColumn(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 24.dp, bottom = 24.dp),
             state = scalingLazyListState,
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (uiState) {
                 is StopDetailsUiState.Success -> {
@@ -112,7 +116,15 @@ fun StopDetailsColumn(
                         }
                         val waitProportion = 1f - labelProportion
 
-                        if (departures.isNotEmpty()) {
+                        item {
+                            ListHeader() {
+                                Text(text = "Departures")
+                            }
+                        }
+
+                        if (departures.isEmpty()) {
+                            item { Text(text = "(No departures listed)") }
+                        } else {
                             items(departures) { departure ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -149,8 +161,23 @@ fun StopDetailsColumn(
                                     }
                                 }
                             }
+                        }
+
+                        item {
+                            ListHeader() {
+                                Text(text = "Messages")
+                            }
+                        }
+
+                        if (messages.isEmpty()) {
+                            item { Text(text = "(no messages)") }
                         } else {
-                            item { Text(text = "(No departures listed)") }
+                            items(messages) {
+                                MarqueeText(
+                                    text = it,
+                                    pauseTime = 2.seconds
+                                )
+                            }
                         }
                     }
                 }
