@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.material.*
 import dev.rjackson.metrolinkstops.data.Stop
 import dev.rjackson.metrolinkstops.presentation.components.StopsList
+import dev.rjackson.metrolinkstops.presentation.components.StopsListMode
 
 @Composable
 fun FavStopsListScreen(
@@ -26,6 +27,7 @@ fun FavStopsListScreen(
         onLineClick = onLineClick,
         onFavouriteChange = { stop, checked ->
             viewModel.onFavouriteChange(stop, checked)
-        }
+        },
+        mode = StopsListMode.ChipStopsList
     )
 }

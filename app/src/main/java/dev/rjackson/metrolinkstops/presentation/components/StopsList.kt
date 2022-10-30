@@ -11,6 +11,10 @@ import androidx.wear.compose.material.*
 import dev.rjackson.metrolinkstops.data.Stop
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
 
+enum class StopsListMode {
+    SplitToggleStopsList,
+    ChipStopsList
+}
 
 @Composable
 fun StopsList(
@@ -19,7 +23,8 @@ fun StopsList(
     scalingLazyListState: ScalingLazyListState,
     modifier: Modifier = Modifier,
     onLineClick: (Stop) -> Unit,
-    onFavouriteChange: (Stop, Boolean) -> Unit
+    onFavouriteChange: (Stop, Boolean) -> Unit,
+    mode: StopsListMode = StopsListMode.SplitToggleStopsList
 ) {
     ScalingLazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -36,31 +41,44 @@ fun StopsList(
         }
         items(stops) { stop ->
             val checked = stop.favourite
-            SplitToggleChip(
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(
+            val chipLabel: @Composable RowScope.() -> Unit = {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stop.name,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            when (mode) {
+                StopsListMode.SplitToggleStopsList -> {
+                    SplitToggleChip(
                         modifier = Modifier.fillMaxWidth(),
-                        text = stop.name,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                colors = ToggleChipDefaults.splitToggleChipColors(),
-                onClick = { onLineClick(stop) },
-                checked = checked,
-                onCheckedChange = { onFavouriteChange(stop, it) },
-                toggleControl = {
-                    StarCheckbox(
+                        label = chipLabel,
+                        colors = ToggleChipDefaults.splitToggleChipColors(),
+                        onClick = { onLineClick(stop) },
                         checked = checked,
-                        modifier = Modifier.semantics {
-                            this.contentDescription =
-                                if (checked) "Add to favourites" else "Remove from favourites"
+                        onCheckedChange = { onFavouriteChange(stop, it) },
+                        toggleControl = {
+                            StarCheckbox(
+                                checked = checked,
+                                modifier = Modifier.semantics {
+                                    this.contentDescription =
+                                        if (checked) "Add to favourites" else "Remove from favourites"
+                                },
+                                enabled = true
+                            )
                         },
-                        enabled = true
                     )
-                },
-            )
+                }
+                StopsListMode.ChipStopsList -> {
+                    Chip(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = chipLabel,
+                        colors = ChipDefaults.secondaryChipColors(),
+                        onClick = { onLineClick(stop) },
+                    )
+                }
+            }
         }
     }
 }
