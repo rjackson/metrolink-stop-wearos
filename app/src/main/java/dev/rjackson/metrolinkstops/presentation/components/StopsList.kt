@@ -45,7 +45,7 @@ fun StopsList(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = stop.name,
-                    maxLines = 1,
+                    maxLines = 2, // TODO: be cool to marquee this instead??
                     overflow = TextOverflow.Ellipsis
                 )
             }
