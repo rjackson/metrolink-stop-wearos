@@ -39,44 +39,49 @@ fun StopsList(
                 )
             }
         }
-        items(stops) { stop ->
-            val checked = stop.favourite
-            val chipLabel: @Composable RowScope.() -> Unit = {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stop.name,
-                    maxLines = 2, // TODO: be cool to marquee this instead??
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            when (mode) {
-                StopsListMode.SplitToggleStopsList -> {
-                    SplitToggleChip(
+
+        if (stops.isEmpty()) {
+            item { Text(text = "(No stops listed)") }
+        } else {
+            items(stops) { stop ->
+                val checked = stop.favourite
+                val chipLabel: @Composable RowScope.() -> Unit = {
+                    Text(
                         modifier = Modifier.fillMaxWidth(),
-                        label = chipLabel,
-                        colors = ToggleChipDefaults.splitToggleChipColors(),
-                        onClick = { onLineClick(stop) },
-                        checked = checked,
-                        onCheckedChange = { onFavouriteChange(stop, it) },
-                        toggleControl = {
-                            StarCheckbox(
-                                checked = checked,
-                                modifier = Modifier.semantics {
-                                    this.contentDescription =
-                                        if (checked) "Add to favourites" else "Remove from favourites"
-                                },
-                                enabled = true
-                            )
-                        },
+                        text = stop.name,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
-                StopsListMode.ChipStopsList -> {
-                    Chip(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = chipLabel,
-                        colors = ChipDefaults.secondaryChipColors(),
-                        onClick = { onLineClick(stop) },
-                    )
+                when (mode) {
+                    StopsListMode.SplitToggleStopsList -> {
+                        SplitToggleChip(
+                            modifier = Modifier.fillMaxWidth(),
+                            label = chipLabel,
+                            colors = ToggleChipDefaults.splitToggleChipColors(),
+                            onClick = { onLineClick(stop) },
+                            checked = checked,
+                            onCheckedChange = { onFavouriteChange(stop, it) },
+                            toggleControl = {
+                                StarCheckbox(
+                                    checked = checked,
+                                    modifier = Modifier.semantics {
+                                        this.contentDescription =
+                                            if (checked) "Add to favourites" else "Remove from favourites"
+                                    },
+                                    enabled = true
+                                )
+                            },
+                        )
+                    }
+                    StopsListMode.ChipStopsList -> {
+                        Chip(
+                            modifier = Modifier.fillMaxWidth(),
+                            label = chipLabel,
+                            colors = ChipDefaults.secondaryChipColors(),
+                            onClick = { onLineClick(stop) },
+                        )
+                    }
                 }
             }
         }
@@ -93,6 +98,19 @@ fun StopsListScreenPreview() {
         Stop("Brooklands"),
         Stop("Sale"),
     )
+    StopsList(
+        title = "Some stops",
+        stops = stops,
+        scalingLazyListState = rememberScalingLazyListState(),
+        onLineClick = {},
+        onFavouriteChange = { _, _ -> }
+    )
+}
+
+@WearDevicePreview
+@Composable
+fun StopsListScreenEmptyPreview() {
+    val stops: List<Stop> = emptyList()
     StopsList(
         title = "Some stops",
         stops = stops,
