@@ -1,5 +1,6 @@
 package dev.rjackson.metrolinkstops.presentation.screens.details
 
+import android.text.format.DateFormat
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ErrorOutline
@@ -9,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -28,8 +30,6 @@ import dev.rjackson.metrolinkstops.network.metrolinkstops.MetrolinkStopDetail
 import dev.rjackson.metrolinkstops.network.metrolinkstops.Status
 import dev.rjackson.metrolinkstops.presentation.MyNavScaffoldViewModel
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Date
 
 @Composable
@@ -131,7 +131,8 @@ fun StopDetails(
             text = when (uiState) {
                 is StopDetailsUiState.Success -> String.format(
                     "Last updated: %s",
-                    formattedTime(uiState.stopDetail.lastUpdated)
+                    DateFormat.getTimeFormat(LocalContext.current)
+                        .format(uiState.stopDetail.lastUpdated)
                 )
                 is StopDetailsUiState.Loading -> "Refreshing..."
                 is StopDetailsUiState.Error -> "Error loading stop info"
@@ -298,17 +299,6 @@ fun DeparturesPage(
             }
         }
     }
-}
-
-fun formattedTime(date: Date): String {
-    // what's the proper _android_ way of doing this???
-    val formattedTime = date
-        .toInstant()
-        .atZone(ZoneId.systemDefault())
-        .toLocalTime()
-        .format(DateTimeFormatter.ISO_LOCAL_TIME)
-
-    return formattedTime
 }
 
 @Composable
