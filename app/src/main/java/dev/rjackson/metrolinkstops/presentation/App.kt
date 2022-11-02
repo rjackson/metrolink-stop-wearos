@@ -3,6 +3,7 @@ package dev.rjackson.metrolinkstops.presentation
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavBackStackEntry
 import androidx.wear.compose.material.*
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.google.android.horologist.compose.navscaffold.*
@@ -80,18 +81,11 @@ fun App(modifier: Modifier = Modifier) {
                 )
             }
 
-            scalingLazyColumnComposable(
-                route = "stop/{stationLocation}",
-                scrollStateBuilder = { ScalingLazyListState() }
-            ) {
+            wearNavComposable(
+                route = "stop/{stationLocation}"
+            ) { navBackStackEntry: NavBackStackEntry, _: NavScaffoldViewModel ->
                 StopDetailsScreen(
-                    modifier = Modifier
-                        .scrollableColumn(
-                            it.viewModel.focusRequester,
-                            it.scrollableState
-                        ),
-                    stationLocation = it.backStackEntry.arguments?.getString("stationLocation")!!,
-                    scalingLazyListState = it.scrollableState
+                    stationLocation = navBackStackEntry.arguments?.getString("stationLocation")!!
                 )
             }
 

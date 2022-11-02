@@ -2,10 +2,12 @@ package dev.rjackson.metrolinkstops.presentation.screens.details
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -20,6 +22,7 @@ import androidx.wear.compose.material.*
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.dialog.Dialog
 import com.google.android.horologist.compose.navscaffold.NavScaffoldViewModel
+import com.google.android.horologist.compose.navscaffold.scrollableColumn
 import dev.rjackson.metrolinkstops.network.metrolinkstops.Carriages
 import dev.rjackson.metrolinkstops.network.metrolinkstops.MetrolinkStopDetail
 import dev.rjackson.metrolinkstops.network.metrolinkstops.Status
@@ -35,8 +38,7 @@ fun StopDetailsScreen(
     stationLocation: String,
     viewModel: StopDetailsViewModel = viewModel(),
     navScaffoldViewModel: NavScaffoldViewModel = viewModel(),
-    myNavScaffoldViewModel: MyNavScaffoldViewModel = viewModel(),
-    scalingLazyListState: ScalingLazyListState
+    myNavScaffoldViewModel: MyNavScaffoldViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val titleStyle = MaterialTheme.typography.title3
@@ -66,22 +68,20 @@ fun StopDetailsScreen(
         }
     }
 
-    StopDetailsColumn(
+    StopDetails(
+        modifier = modifier,
         uiState = uiState,
-        scalingLazyListState = scalingLazyListState,
         onClickRefresh = {
             viewModel.refreshDepartures(
                 stationLocation
             )
         },
-        modifier
     )
 }
 
 @Composable
-fun StopDetailsColumn(
+fun StopDetails(
     uiState: StopDetailsUiState,
-    scalingLazyListState: ScalingLazyListState,
     onClickRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -89,112 +89,31 @@ fun StopDetailsColumn(
         modifier = modifier
             .fillMaxSize()
     ) {
-        var selectedMessage: String? by remember { mutableStateOf(null) }
-
-        ScalingLazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 24.dp, bottom = 24.dp),
-            state = scalingLazyListState
-        ) {
-            when (uiState) {
-                is StopDetailsUiState.Success -> {
-                    with(uiState.stopDetail) {
-                        // Dynamically set label width, to balance short vs long destination names
-                        // TODO: Figure out how to do this via UI by wrapping content, auto centering, and scaling up
-                        //  to a maxWdith
-                        val departureLenths =
-                            departures.map { departure -> departure.destination.length }
-                        val maxDepartureLength = departureLenths.maxOrNull() ?: 0
-                        val labelProportion = when (maxDepartureLength) {
-                            in 0..6 -> 0.5f
-                            in 7..8 -> 0.55f
-                            in 9..10 -> 0.6f
-                            else -> 0.66f
-                        }
-                        val waitProportion = 1f - labelProportion
-
-                        item {
-                            ListHeader() {
-                                Text(text = "Departures")
-                            }
-                        }
-
-                        if (departures.isEmpty()) {
-                            item { Text(text = "(No departures listed)") }
-                        } else {
-                            items(departures) { departure ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.Bottom
-                                ) {
-                                    Text(
-                                        modifier = Modifier.fillParentMaxWidth(labelProportion),
-                                        text = departure.destination,
-                                        maxLines = 1,
-                                        textAlign = TextAlign.Right,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                    Row(
-                                        modifier = Modifier.fillParentMaxWidth(waitProportion),
-                                        verticalAlignment = Alignment.Bottom,
-                                        horizontalArrangement = Arrangement.spacedBy(2.dp)
-                                    ) {
-                                        Text(
-                                            text = departure.wait.toString(),
-                                            textAlign = TextAlign.Right,
-                                            style = MaterialTheme.typography.body2.copy(
-                                                fontFeatureSettings = "tnum"
-                                            ),
-                                            fontWeight = FontWeight.Black,
-                                            color = MaterialTheme.colors.primary
-                                        )
-                                        Text(
-                                            // This is an abbreviation. How do I describe it?
-                                            text = "m",
-                                            textAlign = TextAlign.Left,
-                                            fontSize = 12.sp,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        item {
-                            ListHeader() {
-                                Text(text = "Messages")
-                            }
-                        }
-
-                        if (messages.isEmpty()) {
-                            item { Text(text = "(no messages)") }
-                        } else {
-                            items(messages) { message ->
-                                Chip(
-                                    label = {
-                                        Text(
-                                            text = message,
-                                            maxLines = 4,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    },
-                                    colors = ChipDefaults.outlinedChipColors(),
-                                    border = ChipDefaults.outlinedChipBorder(),
-                                    onClick = {
-                                        selectedMessage = message
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-                is StopDetailsUiState.Loading -> {
-                    item { Text(text = "Loading") }
-                }
-                is StopDetailsUiState.Error -> {
-                    item { Text(text = "Error") }
-                }
+        when (uiState) {
+            is StopDetailsUiState.Loading -> {
+                Icon(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(ButtonDefaults.LargeIconSize),
+                    imageVector = Icons.Rounded.Refresh,
+                    contentDescription = "Refreshing",
+                    tint = MaterialTheme.colors.onBackground
+                )
+            }
+            is StopDetailsUiState.Error -> {
+                Icon(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(ButtonDefaults.LargeIconSize),
+                    imageVector = Icons.Rounded.ErrorOutline,
+                    contentDescription = "Refreshing",
+                    tint = MaterialTheme.colors.onBackground
+                )
+            }
+            is StopDetailsUiState.Success -> {
+                DeparturesPage(
+                    stopDetail = uiState.stopDetail
+                )
             }
         }
         Button(
@@ -208,12 +127,141 @@ fun StopDetailsColumn(
             Icon(imageVector = Icons.Rounded.Refresh, contentDescription = "Refresh")
         }
 
-        if (uiState is StopDetailsUiState.Success) {
-            CurvedLastUpdated(
-                lastUpdated = uiState.stopDetail.lastUpdated,
-                anchor = 90f,
-                angularDirection = CurvedDirection.Angular.Reversed,
-            )
+        CurvedStatusMessage(
+            text = when (uiState) {
+                is StopDetailsUiState.Success -> String.format(
+                    "Last updated: %s",
+                    formattedTime(uiState.stopDetail.lastUpdated)
+                )
+                is StopDetailsUiState.Loading -> "Refreshing..."
+                is StopDetailsUiState.Error -> "Error loading stop info"
+            },
+            anchor = 90f,
+            angularDirection = CurvedDirection.Angular.Reversed,
+        )
+    }
+}
+
+@Composable
+fun DeparturesPage(
+    stopDetail: MetrolinkStopDetail,
+    modifier: Modifier = Modifier,
+    focusRequester: FocusRequester = FocusRequester(),
+    scalingLazyListState: ScalingLazyListState = rememberScalingLazyListState(),
+) {
+    var selectedMessage: String? by remember { mutableStateOf(null) }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    with(stopDetail) {
+        ScalingLazyColumn(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(top = 24.dp, bottom = 24.dp)
+                .scrollableColumn(
+                    focusRequester = focusRequester,
+                    scrollableState = scalingLazyListState
+                ),
+            state = scalingLazyListState
+        ) {
+
+            // Dynamically set label width, to balance short vs long destination names
+            // TODO: Figure out how to do this via UI by wrapping content, auto centering, and scaling up
+            //  to a maxWdith
+            val departureLenths =
+                departures.map { departure -> departure.destination.length }
+            val maxDepartureLength = departureLenths.maxOrNull() ?: 0
+            val labelProportion = when (maxDepartureLength) {
+                in 0..6 -> 0.5f
+                in 7..8 -> 0.55f
+                in 9..10 -> 0.6f
+                else -> 0.66f
+            }
+            val waitProportion = 1f - labelProportion
+
+            item {
+                ListHeader() {
+                    Text(text = "Departures")
+                }
+            }
+
+            if (departures.isEmpty()) {
+                item { Text(text = "(No departures listed)") }
+            } else {
+                items(departures) { departure ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(
+                            8.dp
+                        ),
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text(
+                            modifier = Modifier.fillParentMaxWidth(
+                                labelProportion
+                            ),
+                            text = departure.destination,
+                            maxLines = 1,
+                            textAlign = TextAlign.Right,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Row(
+                            modifier = Modifier.fillParentMaxWidth(
+                                waitProportion
+                            ),
+                            verticalAlignment = Alignment.Bottom,
+                            horizontalArrangement = Arrangement.spacedBy(
+                                2.dp
+                            )
+                        ) {
+                            Text(
+                                text = departure.wait.toString(),
+                                textAlign = TextAlign.Right,
+                                style = MaterialTheme.typography.body2.copy(
+                                    fontFeatureSettings = "tnum"
+                                ),
+                                fontWeight = FontWeight.Black,
+                                color = MaterialTheme.colors.primary
+                            )
+                            Text(
+                                // This is an abbreviation. How do I describe it?
+                                text = "m",
+                                textAlign = TextAlign.Left,
+                                fontSize = 12.sp,
+                            )
+                        }
+                    }
+                }
+            }
+
+            item {
+                ListHeader() {
+                    Text(text = "Messages")
+                }
+            }
+
+            if (messages.isEmpty()) {
+                item { Text(text = "(no messages)") }
+            } else {
+                items(messages) { message ->
+                    Chip(
+                        label = {
+                            Text(
+                                text = message,
+                                maxLines = 4,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        colors = ChipDefaults.outlinedChipColors(),
+                        border = ChipDefaults.outlinedChipBorder(),
+                        onClick = {
+                            selectedMessage = message
+                        }
+                    )
+                }
+            }
         }
 
         Dialog(
@@ -221,10 +269,17 @@ fun StopDetailsColumn(
             onDismissRequest = { selectedMessage = null }
         ) {
             Alert(
-//                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
+                verticalArrangement = Arrangement.spacedBy(
+                    4.dp, Alignment.Top
+                ),
                 contentPadding =
                 PaddingValues(start = 10.dp, end = 10.dp, top = 24.dp, bottom = 52.dp),
-                title = { Text(text = "Message", textAlign = TextAlign.Center) },
+                title = {
+                    Text(
+                        text = "Message",
+                        textAlign = TextAlign.Center
+                    )
+                },
                 message = {
                     Text(
                         text = selectedMessage ?: "",
@@ -245,9 +300,20 @@ fun StopDetailsColumn(
     }
 }
 
+fun formattedTime(date: Date): String {
+    // what's the proper _android_ way of doing this???
+    val formattedTime = date
+        .toInstant()
+        .atZone(ZoneId.systemDefault())
+        .toLocalTime()
+        .format(DateTimeFormatter.ISO_LOCAL_TIME)
+
+    return formattedTime
+}
+
 @Composable
-fun CurvedLastUpdated(
-    lastUpdated: Date,
+fun CurvedStatusMessage(
+    text: String,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = TimeTextDefaults.ContentPadding,
     timeTextStyle: TextStyle = TimeTextDefaults.timeTextStyle(),
@@ -256,18 +322,6 @@ fun CurvedLastUpdated(
     radialAlignment: CurvedAlignment.Radial? = null,
     angularDirection: CurvedDirection.Angular = CurvedDirection.Angular.Normal,
 ) {
-    // what's the proper _android_ way of doing this???
-    val formattedTime = lastUpdated
-        .toInstant()
-        .atZone(ZoneId.systemDefault())
-        .toLocalTime()
-        .format(DateTimeFormatter.ISO_LOCAL_TIME)
-
-    val text = String.format(
-        "Last updated: %s",
-        formattedTime
-    )
-
     if (LocalConfiguration.current.isScreenRound) {
         CurvedLayout(
             modifier = modifier,
@@ -366,7 +420,7 @@ fun StopDetailsColumnPreview() {
         "Pigeons on the tracks!",
         "Football's a kickin'"
     )
-    StopDetailsColumn(
+    StopDetails(
         uiState = StopDetailsUiState.Success(
             MetrolinkStopDetail(
                 name = "Great Stop",
@@ -375,7 +429,6 @@ fun StopDetailsColumnPreview() {
                 lastUpdated = Date()
             )
         ),
-        scalingLazyListState = ScalingLazyListState(),
         onClickRefresh = {}
     )
 }
@@ -401,7 +454,7 @@ fun StopDetailsColumnShortPreview() {
         "Pigeons on the tracks!",
         "Football's a kickin'"
     )
-    StopDetailsColumn(
+    StopDetails(
         uiState = StopDetailsUiState.Success(
             MetrolinkStopDetail(
                 name = "Great Stop",
@@ -410,7 +463,24 @@ fun StopDetailsColumnShortPreview() {
                 lastUpdated = Date()
             )
         ),
-        scalingLazyListState = ScalingLazyListState(),
+        onClickRefresh = {}
+    )
+}
+
+@WearDevicePreview
+@Composable
+fun StopDetailsColumnLoadingPreview() {
+    StopDetails(
+        uiState = StopDetailsUiState.Loading,
+        onClickRefresh = {}
+    )
+}
+
+@WearDevicePreview
+@Composable
+fun StopDetailsColumnErrorPreview() {
+    StopDetails(
+        uiState = StopDetailsUiState.Error,
         onClickRefresh = {}
     )
 }
