@@ -10,4 +10,11 @@ import androidx.compose.ui.tooling.preview.Preview
     showBackground = true,
     group = "Devices - Small Round",
 )
+@Preview(
+    device = Devices.WEAR_OS_SQUARE,
+    showSystemUi = true,
+    backgroundColor = 0xff000000,
+    showBackground = true,
+    group = "Devices - Small Round",
+)
 annotation class WearDevicePreview

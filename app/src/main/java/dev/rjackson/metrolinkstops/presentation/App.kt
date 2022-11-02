@@ -3,13 +3,12 @@ package dev.rjackson.metrolinkstops.presentation
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavBackStackEntry
 import androidx.wear.compose.material.*
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.google.android.horologist.compose.navscaffold.*
+import dev.rjackson.metrolinkstops.presentation.screens.details.StopDetailsScreen
 import dev.rjackson.metrolinkstops.presentation.screens.list.StopsListScreen
 import dev.rjackson.metrolinkstops.presentation.screens.settings.SettingsScreen
-import dev.rjackson.metrolinkstops.presentation.screens.details.StopDetailsScreen
 import dev.rjackson.metrolinkstops.presentation.screens.favourites.FavStopsListScreen
 import dev.rjackson.metrolinkstops.presentation.screens.menu.MenuScreen
 import dev.rjackson.metrolinkstops.presentation.theme.MetrolinkStopsTheme
@@ -19,7 +18,7 @@ fun App(modifier: Modifier = Modifier) {
     val navController = rememberSwipeDismissableNavController()
 
     MetrolinkStopsTheme {
-        MyWearNavScaffold(
+        WearNavScaffold(
             modifier = modifier,
             navController = navController,
             startDestination = "menu"
@@ -83,9 +82,13 @@ fun App(modifier: Modifier = Modifier) {
 
             wearNavComposable(
                 route = "stop/{stationLocation}"
-            ) { navBackStackEntry: NavBackStackEntry, _: NavScaffoldViewModel ->
+            ) { backStack, viewModel ->
+                // This screen will manage its own scaffold
+                viewModel.timeTextMode = NavScaffoldViewModel.TimeTextMode.Off
+                viewModel.positionIndicatorMode = NavScaffoldViewModel.PositionIndicatorMode.Off
+
                 StopDetailsScreen(
-                    stationLocation = navBackStackEntry.arguments?.getString("stationLocation")!!
+                    stationLocation = backStack.arguments?.getString("stationLocation")!!
                 )
             }
 
