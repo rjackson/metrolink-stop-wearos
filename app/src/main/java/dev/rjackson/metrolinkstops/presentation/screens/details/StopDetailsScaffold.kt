@@ -3,15 +3,10 @@ package dev.rjackson.metrolinkstops.presentation.screens.details
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.material.Text
-import dev.rjackson.metrolinkstops.presentation.components.CurvedFooterMessage
-import dev.rjackson.metrolinkstops.presentation.components.RefreshButton
 import dev.rjackson.metrolinkstops.presentation.components.TitledTimeText
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
 
@@ -20,7 +15,7 @@ fun StopDetailsScaffold(
     title: String,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
-    footerMessage: String?,
+    footerMessage: String? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -28,21 +23,13 @@ fun StopDetailsScaffold(
 
         // Overlays
         TitledTimeText(text = title)
-
-        RefreshButton(
-            onClick = onRefresh,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 24.dp)
-        )
-
-        if (footerMessage != null) {
-            CurvedFooterMessage(
-                text = footerMessage,
-                anchor = 90f,
-                angularDirection = CurvedDirection.Angular.Reversed,
-            )
-        }
+//        if (footerMessage != null) {
+//            CurvedFooterMessage(
+//                text = footerMessage,
+//                anchor = 90f,
+//                angularDirection = CurvedDirection.Angular.Reversed,
+//            )
+//        }
     }
 }
 

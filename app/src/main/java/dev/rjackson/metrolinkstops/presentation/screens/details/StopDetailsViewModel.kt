@@ -27,6 +27,7 @@ class StopDetailsViewModel : ViewModel() {
     val uiState: StateFlow<StopDetailsUiState> = _uiState.asStateFlow()
 
     fun refreshDepartures(stationLocation: String) {
+        // TODO: Shouldn't we be aware of the stationLocation we're currently viewing? Part of the nav stack?
         viewModelScope.launch {
             _uiState.value = StopDetailsUiState.Loading
             try {
