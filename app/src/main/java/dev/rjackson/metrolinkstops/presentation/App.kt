@@ -3,6 +3,8 @@ package dev.rjackson.metrolinkstops.presentation
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.wear.compose.material.*
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.google.android.horologist.compose.navscaffold.*
@@ -81,14 +83,17 @@ fun App(modifier: Modifier = Modifier) {
             }
 
             wearNavComposable(
-                route = "stop/{stationLocation}"
+                route = "stop/{name}",
+                arguments = listOf(navArgument("name") {
+                    type = NavType.StringType
+                })
             ) { backStack, viewModel ->
                 // This screen will manage its own scaffold
                 viewModel.timeTextMode = NavScaffoldViewModel.TimeTextMode.Off
                 viewModel.positionIndicatorMode = NavScaffoldViewModel.PositionIndicatorMode.Off
 
                 StopDetailsScreen(
-                    stationLocation = backStack.arguments?.getString("stationLocation")!!
+                    stationLocation = backStack.arguments?.getString("name")!!
                 )
             }
 

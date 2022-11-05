@@ -2,12 +2,12 @@ package dev.rjackson.metrolinkstops.presentation.screens.details
 
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.material.Text
 import dev.rjackson.metrolinkstops.presentation.components.DeparturesList
 import dev.rjackson.metrolinkstops.tools.WearDevicePreview
@@ -16,7 +16,11 @@ import dev.rjackson.metrolinkstops.tools.WearDevicePreview
 fun StopDetailsScreen(
     modifier: Modifier = Modifier,
     stationLocation: String,
-    viewModel: StopDetailsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: StopDetailsViewModel = viewModel(
+        factory = StopDetailsViewModel.Factory(
+            stationLocation
+        )
+    ),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -32,12 +36,9 @@ fun StopDetailsScreen(
 fun StopDetailsScreen(
     stationLocation: String,
     uiState: StopDetailsUiState,
-    refreshDepartures: (String) -> Unit,
+    refreshDepartures: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LaunchedEffect(Unit) {
-        refreshDepartures(stationLocation)
-    }
 
     val footerMessage = when (uiState) {
         is StopDetailsUiState.Success -> String.format(
@@ -52,7 +53,7 @@ fun StopDetailsScreen(
     StopDetailsScaffold(
         modifier = modifier,
         title = stationLocation,
-        onRefresh = { refreshDepartures(stationLocation) },
+        onRefresh = refreshDepartures,
         footerMessage = footerMessage
     ) {
         when (uiState) {
@@ -71,9 +72,10 @@ fun StopDetailsScreen(
     }
 }
 
+
 @WearDevicePreview
 @Composable
-fun StopDetailsPagerScreenPreview() {
+fun StopDetailsScreenPreview() {
     StopDetailsScreen(
         stationLocation = "Altrincham",
         uiState = previewUiState_Success,
@@ -83,7 +85,7 @@ fun StopDetailsPagerScreenPreview() {
 
 @WearDevicePreview
 @Composable
-fun StopDetailsPagerScreenLoadingPreview() {
+fun StopDetailsScreenLoadingPreview() {
     StopDetailsScreen(
         stationLocation = "Altrincham",
         uiState = previewUiState_Loading,
@@ -93,7 +95,7 @@ fun StopDetailsPagerScreenLoadingPreview() {
 
 @WearDevicePreview
 @Composable
-fun StopDetailsPagerScreenErrorPreview() {
+fun StopDetailsScreenErrorPreview() {
     StopDetailsScreen(
         stationLocation = "Altrincham",
         uiState = previewUiState_Error,
