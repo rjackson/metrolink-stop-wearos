@@ -82,4 +82,13 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:1.9.3"
     implementation "com.squareup.moshi:moshi-adapters:1.9.3"
     implementation "com.squareup.retrofit2:converter-moshi:2.9.0"
+
+    // Tiles
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.0")
+    implementation("androidx.wear.tiles:tiles:1.1.0")
+    implementation("androidx.wear.tiles:tiles-material:1.1.0")
+    debugImplementation("androidx.wear.tiles:tiles-renderer:1.1.0")
+    testImplementation("androidx.wear.tiles:tiles-testing:1.1.0")
+    implementation "com.google.android.horologist:horologist-tiles:0.1.15"
+    implementation "com.google.android.horologist:horologist-compose-tools:0.1.15"
 }
