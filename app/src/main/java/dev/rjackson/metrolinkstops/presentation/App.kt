@@ -1,17 +1,16 @@
 package dev.rjackson.metrolinkstops.presentation
 
-import androidx.compose.foundation.ScrollState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import androidx.wear.compose.material.*
+import androidx.wear.compose.material.ScalingLazyListState
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.google.android.horologist.compose.navscaffold.*
 import dev.rjackson.metrolinkstops.presentation.screens.details.StopDetailsScreen
-import dev.rjackson.metrolinkstops.presentation.screens.list.StopsListScreen
-import dev.rjackson.metrolinkstops.presentation.screens.settings.SettingsScreen
 import dev.rjackson.metrolinkstops.presentation.screens.favourites.FavStopsListScreen
+import dev.rjackson.metrolinkstops.presentation.screens.info.InfoScreen
+import dev.rjackson.metrolinkstops.presentation.screens.list.StopsListScreen
 import dev.rjackson.metrolinkstops.presentation.screens.menu.MenuScreen
 import dev.rjackson.metrolinkstops.presentation.theme.MetrolinkStopsTheme
 
@@ -43,7 +42,7 @@ fun App(modifier: Modifier = Modifier) {
                         navController.navigate("all_stops")
                     },
                     onSettingsClick = {
-                        navController.navigate("settings")
+                        navController.navigate("info")
                     }
                 )
             }
@@ -97,13 +96,17 @@ fun App(modifier: Modifier = Modifier) {
                 )
             }
 
-            scrollStateComposable(
-                route = "settings",
-                scrollStateBuilder = { ScrollState(0) }
+            scalingLazyColumnComposable(
+                route = "info",
+                scrollStateBuilder = { ScalingLazyListState() }
             ) {
-                SettingsScreen(
-                    scrollableState = it.scrollableState,
-                    focusRequester = it.viewModel.focusRequester
+                InfoScreen(
+                    modifier = Modifier
+                        .scrollableColumn(
+                            it.viewModel.focusRequester,
+                            it.scrollableState
+                        ),
+                    scalingLazyListState = it.scrollableState,
                 )
             }
         }

@@ -1,8 +1,9 @@
 package dev.rjackson.metrolinkstops.presentation.screens.menu
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Tram
 import androidx.compose.runtime.Composable
@@ -64,9 +65,9 @@ fun MenuScreen(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onSettingsClick() },
                 colors = ChipDefaults.secondaryChipColors(),
-                label = { Text(textAlign = TextAlign.Center, text = "Settings") },
+                label = { Text(textAlign = TextAlign.Center, text = "About") },
                 icon = {
-                    Icon(imageVector = Icons.Rounded.Settings, contentDescription = null)
+                    Icon(imageVector = Icons.Rounded.Info, contentDescription = null)
                 }
             )
         }
